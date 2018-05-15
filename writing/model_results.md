@@ -1,3 +1,7 @@
+---
+typora-root-url: ../model/multi-dist_mammal/cpr_type_exten_D.png
+---
+
 # Method
 
 ## Data
@@ -115,3 +119,18 @@ Another kind of discovery is to focus on surprising facts, where people can ask 
 
 Here we do show an example from our dataset. We first choose a category like "dog" that includes 6 concepts, then pick the concept with least correlation with other concepts, which is "coyoto" (as can be seen from the correlation matrix in section 2). Next, we pair each relations involving coyote with the same relation but replace "coyote" to its sup-ordinate concept ("dog"), and compute the difference of prediction score from the embedding model. This brings to us the attention to some potentially surprising facts like: "coyote-makes sound-howl", "coyote-makes sound-yelp",  and "coyote-is eaten by-wolf".
 
+### 5. Integrating logic into knowledge base learning
+
+To this point, our model is making inferences solely based on similarity (in the embedding space). However, for human learners they can also exploit logic to make inference, like syllogism. When they know that coyote is a kind of dog and dog is carnivorous, they should know that coyote is carnivorous. 
+
+Here we design an experiment to explore if adding the component of logic will increase the efficiency of inference. If it's true, it would also demonstrate the benefit of constructing higher-leveled concepts. Specifically, we focus on the "is a kind of" relation and teaches the model syllogism:
+
+>  if : "x - is a kind of - A" && if "A -r - t", 
+>
+> then : "x - r - t".
+
+We first incorporate this logic by extending our training dataset to include new triplets created by this rule, then train the model on this extended dataset. We compare its correct rate on test dataset with the simple training dataset (in both cases the test dataset are not seen during training). The result is in the follows:
+
+![cpr_type_exten_D](/../cpr_type_exten_D.png)
+
+Contradictory to our prediction, adding more data doesn't improve the inference performance. Partly the reason could be unthorough search of network parameter  (for extended data we used 18-dim embedding and regularization factor lambda 0.005). More importantly, it could be due to the simplicity of this dataset. For example, as long as there is relations like " coyote is a kind of dog" and "dog is carnivorous", there won't exist knowledge like "coyote is carnivorous". Thus the kind of new data that will benefit most from our procedure won't exist in our testing dataset. But this may not necessarily true in larger, less well simplified knowledge base, and is definitely not true to people's daily experience. Therefore, testing on other types of dataset is needed to examine the efficacy of this logic-augmented training approach.
